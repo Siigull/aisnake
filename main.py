@@ -3,6 +3,8 @@ from random import randrange
 from random import randint
 pg.init()
 font = pg.font.SysFont('dejavusansmono', 25)
+font_end = pg.font.SysFont('dejavusansmono', 50)
+
 
 Window_Height_pixels = 1000
 Window_Width_pixels = 1000
@@ -11,9 +13,7 @@ Window_Height = Window_Height_pixels // Tile_Size
 Window_Width = Window_Width_pixels // Tile_Size
 
 screen = pg.display.set_mode((Window_Width_pixels, Window_Height_pixels))
-
 clock = pg.time.Clock()
-get_random_position = lambda: [randrange(1, (Window_Width_pixels // Tile_Size)) * Tile_Size, randrange(1, (Window_Height_pixels // Tile_Size)) * Tile_Size]
 
 # reset 
 # reward 
@@ -21,8 +21,9 @@ get_random_position = lambda: [randrange(1, (Window_Width_pixels // Tile_Size)) 
 # frame, state, game iteration 
 # is collision change
 
-def random_position():
+def get_random_position():
     return (randrange(1, Window_Width - 1), randrange(1, Window_Height - 1))
+
 
 class SnakeAgent:
     def __init__(self):
@@ -35,7 +36,7 @@ class SnakeAgent:
         self.score = 0
 
     def random_head_position(self):
-        self.head.append(random_position())
+        self.head.append(get_random_position())
         self.positions = self.head
 
     def move(self):
@@ -57,7 +58,6 @@ class SnakeAgent:
         self.head = []
         self.positions = []
         self.direction = 0
-        self.lastpositionbuff = []
         self.random_head_position()
         self.move()
         self.score = 0
@@ -70,7 +70,7 @@ class Food:
         self.position = []
 
     def add(self):
-        self.position.append(random_position())
+        self.position.append(get_random_position())
 
     def draw(self):
         pg.draw.rect(screen, 'red', (self.position[0] * Tile_Size, self.position[1] * Tile_Size, Tile_Size, Tile_Size))
@@ -134,6 +134,21 @@ def draw_grid(snake, food):
 
 
 def game_reset(snake, food):
+    text = font_end.render(f'Score: {snake.score}', True, (255, 255, 255))
+    screen.blit(text, text.get_rect(center=(Window_Width_pixels // 2, Window_Height_pixels // 2)))
+    pg.display.flip()
+
+    wait = True
+    while wait:
+        clock.tick(10)
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                pg.quit()
+                quit()
+
+            if event.type == pg.KEYDOWN:
+                wait = False
+
     snake.reset()
     food.position = []
     food.add()
